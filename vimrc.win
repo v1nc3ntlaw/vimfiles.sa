@@ -1,0 +1,197 @@
+" Load matchit (% to bounce from do to end, etc.)
+runtime! macros/matchit.vim
+
+augroup myfiletypes
+" Clear old autocmds in group
+autocmd!
+" autoindent with two spaces, always expand tabs
+autocmd FileType ruby,eruby,yaml set ai sw=2 sts=2 et
+augroup END
+
+source $VIMRUNTIME/vimrc_example.vim
+source $VIMRUNTIME/mswin.vim
+behave mswin
+
+set diffexpr=MyDiff()
+function MyDiff()
+  let opt = '-a --binary '
+  if &diffopt =~ 'icase' | let opt = opt . '-i ' | endif
+  if &diffopt =~ 'iwhite' | let opt = opt . '-b ' | endif
+  let arg1 = v:fname_in
+  if arg1 =~ ' ' | let arg1 = '"' . arg1 . '"' | endif
+  let arg2 = v:fname_new
+  if arg2 =~ ' ' | let arg2 = '"' . arg2 . '"' | endif
+  let arg3 = v:fname_out
+  if arg3 =~ ' ' | let arg3 = '"' . arg3 . '"' | endif
+  let eq = ''
+  if $VIMRUNTIME =~ ' '
+    if &sh =~ '\<cmd'
+      let cmd = '""' . $VIMRUNTIME . '\diff"'
+      let eq = '"'
+    else
+      let cmd = substitute($VIMRUNTIME, ' ', '" ', '') . '\diff"'
+    endif
+  else
+    let cmd = $VIMRUNTIME . '\diff'
+  endif
+  silent execute '!' . cmd . ' ' . opt . arg1 . ' ' . arg2 . ' > ' . arg3 . eq
+endfunction
+
+language english
+colors dw_red
+syntax on
+
+set nocp
+set number
+set cindent
+set nobackup
+set incsearch
+set autoindent
+set smartindent
+set nocompatible
+set nowritebackup
+
+filetype on
+filetype plugin on
+filetype indent on
+
+" 在Windows下使用細明體大小10
+set gfn=細明體:h10:cCHINESEBIG5
+
+map <F2> :execute "vimgrep /" . expand("<cword>") . "/j **" <Bar> cw<CR>
+
+cabbrev lvim
+      \ lvim /\<lt><C-R><C-W>\>/gj
+      \ *<C-R>=(expand("%:e")=="" ? "" : ".".expand("%:e"))<CR>
+      \ <Bar> lw
+      \ <C-Left><C-Left><C-Left>
+
+" <F3>-<F4> 快捷鍵設定 切換 Buffer
+nnoremap <F3>       :bp!<CR>
+nnoremap <Leader>3  :bp!<CR>
+inoremap <F3> <ESC> :bp!<CR>
+
+nnoremap <F4>       :bn!<CR>
+nnoremap <Leader>4  :bn!<CR>
+inoremap <F4> <ESC> :bn!<CR>
+
+" <F5>-<F8> 快捷鍵設定 for C/C++ coding
+map   <F5>   :cp<CR>
+map   <F6>   :cn<CR>
+map   <F7>   :make<CR>   :copen<CR>   <C-W>10_
+map   <F8>   :!%<<CR>
+
+set makeprg=make\ %<
+
+" miniBufExpl的設定
+"let g:miniBufExplMapWindowNavVim = 1
+let g:miniBufExplMapWindowNavArrows = 1
+let g:miniBufExplMapCTabSwitchBufs = 1
+"let g:miniBufExplModSelTarget = 1
+let g:miniBufExplMapWindowNavVim = 1 "Ctrl-<hjkl> to move to window
+let g:miniBufExplTabWrap = 1 " make tabs show complete (no broken on two lines)
+
+" 使用 Ctrl + 左右鍵快速切換 buffer
+map <C-right> <ESC>:bn<CR>
+map <C-left> <ESC>:bp<CR>
+
+" 使用上下鍵可在自動換行之間移動
+map <DOWN> gj
+map <UP> gk
+imap <DOWN> <ESC>gji
+imap <UP> <ESC>gki
+
+" 設定 vim 編輯預設備份目錄, 必須先 mkdir ~/vi_backup/
+"set backupdir=~/vi_backup/
+"set backup
+
+" 使用 Ctrl+F2 隱藏或顯示 Gvim 的選單
+set guioptions-=T
+set guioptions-=m
+map <silent> <C-F2> :if &guioptions =~# 'T' <Bar>
+\set guioptions-=T <Bar>
+\set guioptions-=m <Bar>
+\else <Bar>
+\set guioptions+=T <Bar>
+\set guioptions+=m <Bar>
+\endif<CR>
+
+" support Adobe Flash ActionScript syntax
+" actionscript.vim is needed
+au BufNewFile,BufRead *.as set filetype=actionscript
+
+" Set AutoComplPop support SnipMate trigger completion
+let g:acp_enableAtStartup = 1
+let g:acp_completeOption = '.,w,b,u,t,i,k'
+let g:acp_behaviorSnipmateLength = 1
+let g:acp_behaviorKeywordCommand = "\<C-n>"
+
+" Set AutoComplPop support javascript
+let jsbehavs = { 'javascript': [] }
+call add(jsbehavs.javascript, {
+    \   'command'      : "\<C-x>\<C-u>",
+    \   'completefunc' : 'acp#completeSnipmate',
+    \   'meets'        : 'acp#meetsForSnipmate',
+    \   'onPopupClose' : 'acp#onPopupCloseSnipmate',
+    \   'repeat'       : 0,
+    \})
+call add(jsbehavs.javascript, {
+    \   'command' : g:acp_behaviorKeywordCommand,
+    \   'meets'   : 'acp#meetsForKeyword',
+    \   'repeat'  : 0,
+    \ })
+call add(jsbehavs.javascript, {
+    \    'command'  : "\<C-x>\<C-o>",
+    \    'meets'   : 'acp#meetsForKeyword',
+    \    'repeat'   : 0,
+    \})
+let g:acp_behavior = {}
+call extend(g:acp_behavior, jsbehavs, 'keep')
+
+" 游標移動後, 一樣可以用 backsapce, del 等刪除動作
+set bs=2
+
+" save .vimrc, auto exec, .vimrc 如果存檔, 就會立刻實現
+"autocmd! bufwritepost .vimrc source %
+
+" 搜尋到的字加 hilight
+set hlsearch
+
+" \t 會以 4個空格代替
+set expandtab
+set shiftwidth=4
+set softtabstop=4
+set tabstop=4
+
+" :sp 開檔時, 上面會列出所有檔案
+set wildmenu
+
+" 可以用 {{{ }}} 縮排 Folded
+"set foldmethod=marker
+" {{{
+" 這是縮排測試用的
+" }}}
+
+" UTF-8 Big5 Setting
+" 以下四個設下去. vim 編出來都是 big5 編碼的.
+set fileencodings=utf-8,big5
+set fileencoding=big5
+" 檔案存檔會存成big5編碼
+set termencoding=big5
+set enc=big5
+set tenc=big5
+
+" 會自動到最後離開的位置
+if has("autocmd")
+    autocmd BufRead *.txt set tw=78
+    autocmd BufReadPost *
+    \ if line("'\"") > 0 && line ("'\"") <= line("$") |
+    \   exe "normal g'\"" |
+    \ endif
+endif
+
+" 下面出現一列 bar.
+set ls=2
+set statusline=%<%f\ %m%=\ %h%r\ %-19([%p%%]\ %3l,%02c%03V%)%y
+highlight StatusLine ctermfg=white ctermbg=blue
+

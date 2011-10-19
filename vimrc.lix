@@ -1,0 +1,184 @@
+if has("gui_running")
+    colors dw_red
+else
+    colors v13
+endif
+
+syntax on
+
+set nocp
+set number
+set cindent
+set incsearch
+set autoindent
+set smartindent
+
+filetype on
+filetype plugin on
+filetype indent on
+
+map <F2> :execute "vimgrep /" . expand("<cword>") . "/j **" <Bar> cw<CR>
+
+cabbrev lvim
+      \ lvim /\<lt><C-R><C-W>\>/gj
+      \ *<C-R>=(expand("%:e")=="" ? "" : ".".expand("%:e"))<CR>
+      \ <Bar> lw
+      \ <C-Left><C-Left><C-Left>
+
+" <F3>-<F4> 快捷鍵設定 切換 Buffer
+nnoremap <F3>       :bp!<CR>
+nnoremap <Leader>3  :bp!<CR>
+inoremap <F3> <ESC> :bp!<CR>
+
+nnoremap <F4>       :bn!<CR>
+nnoremap <Leader>4  :bn!<CR>
+inoremap <F4> <ESC> :bn!<CR>
+
+" <F5>-<F8> 快捷鍵設定 for C/C++ coding
+map   <F5>   :cp<CR>
+map   <F6>   :cn<CR>
+map   <F7>   :make<CR>   :copen<CR>   <C-W>10_
+map   <F8>   :!./%<<CR>
+
+set makeprg=make\ %<
+
+" miniBufExpl的設定
+"let g:miniBufExplMapWindowNavVim = 1
+let g:miniBufExplMapWindowNavArrows = 1
+let g:miniBufExplMapCTabSwitchBufs = 1
+"let g:miniBufExplModSelTarget = 1
+let g:miniBufExplMapWindowNavVim = 1 "Ctrl-<hjkl> to move to window
+let g:miniBufExplTabWrap = 1 " make tabs show complete (no broken on two lines)
+
+" 使用 Ctrl + 左右鍵快速切換 buffer
+map <C-right> <ESC>:bn<CR>
+map <C-left> <ESC>:bp<CR>
+
+" 使用上下鍵可在自動換行之間移動
+map <DOWN> gj
+map <UP> gk
+imap <DOWN> <ESC>gji
+imap <UP> <ESC>gki
+
+" 設定 vim 編輯預設備份目錄, 必須先 mkdir ~/vi_backup/
+"set backupdir=~/vi_backup/
+"set backup
+
+" 使用 Ctrl+F2 隱藏或顯示 Gvim 的選單
+set guioptions-=T
+set guioptions-=m
+map <silent> <C-F2> :if &guioptions =~# 'T' <Bar>
+\set guioptions-=T <Bar>
+\set guioptions-=m <Bar>
+\else <Bar>
+\set guioptions+=T <Bar>
+\set guioptions+=m <Bar>
+\endif<CR>
+
+" Set AutoComplPop support SnipMate trigger completion
+let g:acp_enableAtStartup = 1
+let g:acp_completeOption = '.,w,b,u,t,i,k'
+let g:acp_behaviorSnipmateLength = 1
+let g:acp_behaviorKeywordCommand = "\<C-n>"
+
+" Set AutoComplPop support javascript
+let jsbehavs = { 'javascript': [] }
+call add(jsbehavs.javascript, {
+    \   'command'      : "\<C-x>\<C-u>",
+    \   'completefunc' : 'acp#completeSnipmate',
+    \   'meets'        : 'acp#meetsForSnipmate',
+    \   'onPopupClose' : 'acp#onPopupCloseSnipmate',
+    \   'repeat'       : 0,
+    \})
+call add(jsbehavs.javascript, {
+    \   'command' : g:acp_behaviorKeywordCommand,
+    \   'meets'   : 'acp#meetsForKeyword',
+    \   'repeat'  : 0,
+    \ })
+call add(jsbehavs.javascript, {
+    \    'command'  : "\<C-x>\<C-o>",
+    \    'meets'   : 'acp#meetsForKeyword',
+    \    'repeat'   : 0,
+    \})
+let g:acp_behavior = {}
+call extend(g:acp_behavior, jsbehavs, 'keep')
+
+" Set support Actionscript and mxml syntax
+autocmd BufRead *.as set filetype=actionscript
+autocmd BufRead *.mxml set filetype=mxml
+
+" 游標移動後, 一樣可以用 backsapce, del 等刪除動作
+set bs=2
+
+" save .vimrc, auto exec, .vimrc 如果存檔, 就會立刻實現
+"autocmd! bufwritepost .vimrc source %
+
+" 搜尋到的字加 hilight
+set hlsearch
+
+" \t 會以 2個空格代替
+set expandtab
+set shiftwidth=2
+set softtabstop=2
+set tabstop=2
+
+" :sp 開檔時, 上面會列出所有檔案
+set wildmenu
+
+" 可以用 {{{ }}} 縮排 Folded
+"set foldmethod=marker
+" {{{
+" 這是縮排測試用的
+" }}}
+
+" UTF-8 Big5 Setting
+" 以下四個設下去. vim 編出來都是 utf-8 編碼的.
+set fileencodings=utf-8,big5
+set fileencoding=utf-8
+" 檔案存檔會存成utf-8編碼
+set termencoding=utf-8
+set enc=utf-8
+set tenc=utf8
+
+" 會自動到最後離開的位置
+if has("autocmd")
+    autocmd BufRead *.txt set tw=78
+    autocmd BufReadPost *
+    \ if line("'\"") > 0 && line ("'\"") <= line("$") |
+    \   exe "normal g'\"" |
+    \ endif
+endif
+
+" 下面出現一列 bar.
+set ls=2
+set statusline=%<%f\ %m%=\ %h%r\ %-19([%p%%]\ %3l,%02c%03V%)%y
+highlight StatusLine ctermfg=blue ctermbg=white
+
+" 不知道啥功能
+
+"imap <C-n> <Esc>:w<CR><Esc>
+nnoremap <silent> <F9> :set paste<CR>
+
+" " for cscope
+" if has("cscope")
+" set csprg=/usr/bin/cscope
+" set csto=0
+" set cst
+" set nocsverb
+" " add any database in current directory
+" if filereadable("cscope.out")
+" cs add cscope.out
+" " else add database pointed to by environment
+" elseif $CSCOPE_DB != ""
+" cs add $CSCOPE_DB
+" endif
+" set csverb
+" set cscopetag
+" set cscopequickfix=s-,g-,c-,d-,t-,e-,f-,i-
+" endif
+
+" /usr/share/vim/vim63/colors/desert.vim
+" highlight Search term=reverse ctermbg=4 ctermfg=7
+" highlight Normal ctermbg=black ctermfg=white
+" highlight Folded ctermbg=black ctermfg=darkcyan
+" hi Comment ctermbg=black ctermfg=darkcyan
