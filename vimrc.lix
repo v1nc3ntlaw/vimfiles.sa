@@ -154,6 +154,9 @@ set ls=2
 set statusline=%<%f\ %m%=\ %h%r\ %-19([%p%%]\ %3l,%02c%03V%)%y
 highlight StatusLine ctermfg=blue ctermbg=white
 
+" add nginx config file syntax highlight support
+au BufRead,BufNewFile */nginx.conf set ft=nginx
+
 " 不知道啥功能
 
 "imap <C-n> <Esc>:w<CR><Esc>
